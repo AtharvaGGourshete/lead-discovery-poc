@@ -1,0 +1,23 @@
+export const EVENT_TYPES = [
+  "Expansion",
+  "New Office",
+  "Office Expansion",
+  "New Headquarters",
+  "Manufacturing Facility",
+  "Factory Expansion",
+  "Warehouse",
+  "Land Acquisition",
+  "Commercial Property",
+  "Industrial Park",
+  "Campus",
+  "R&D Center",
+  "Funding",
+  "IPO",
+  "Merger",
+  "Acquisition",
+  "Hiring",
+  "Strategic Investment",
+  "Digital Transformation",
+  "Government Contract",
+  "Sustainability"
+];
