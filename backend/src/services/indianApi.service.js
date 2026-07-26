@@ -1,15 +1,75 @@
 import axios from "axios";
+import listedCompanies from "../data/nse-listed-companies.json" with { type: "json" };
 
 const BASE_URL = "https://stock.indianapi.in";
 
+/**
+ * Normalize company names for matching
+ */
+function normalizeCompanyName(name) {
+    return name
+        .toLowerCase()
+        .replace(
+            /\b(private|public|limited|ltd|pvt|plc|inc|corporation|corp)\b/g,
+            ""
+        )
+        .replace(/[^\w\s]/g, "")
+        .replace(/\s+/g, " ")
+        .trim();
+}
+
+/**
+ * Build lookup map once
+ */
+const listedCompaniesMap = new Map(
+    listedCompanies.map(company => [
+        normalizeCompanyName(company.company_name),
+        company,
+    ])
+);
+
+/**
+ * Returns company metadata if listed, otherwise null
+ */
+export function getListedCompany(companyName) {
+    return (
+        listedCompaniesMap.get(
+            normalizeCompanyName(companyName)
+        ) ?? null
+    );
+}
+
 export async function enrichCompany(companyName) {
+
+    // ==========================
+    // Check local cache first
+    // ==========================
+
+    const listedCompany = getListedCompany(companyName);
+
+    if (!listedCompany) {
+
+        return {
+
+            listed: false,
+
+            financialVerification: false,
+
+            companyName,
+
+            financials: null,
+
+        };
+
+    }
+
     try {
 
         const response = await axios.get(
             `${BASE_URL}/stock`,
             {
                 params: {
-                    name: companyName,
+                    name: listedCompany.ticker, // Use ticker instead of company name
                 },
                 headers: {
                     "x-api-key": process.env.INDIAN_API_KEY,
@@ -19,23 +79,31 @@ export async function enrichCompany(companyName) {
 
         const data = response.data;
 
-        // Ensure financials always exists
         const financials = Array.isArray(data?.financials)
             ? data.financials
             : [];
 
         if (financials.length === 0) {
-            console.log(
-                `No financial statements found for ${companyName}`
-            );
-            return null;
+
+            return {
+
+                listed: true,
+
+                financialVerification: false,
+
+                companyName: listedCompany.company_name,
+
+                ticker: listedCompany.ticker,
+
+                financials: null,
+
+            };
+
         }
 
-        // Prefer Annual statements
         const latestStatement =
-            financials.find(
-                (f) => f.Type === "Annual"
-            ) ?? financials[0];
+            financials.find(f => f.Type === "Annual") ??
+            financials[0];
 
         const income =
             latestStatement?.stockFinancialMap?.INC ?? [];
@@ -48,31 +116,33 @@ export async function enrichCompany(companyName) {
 
         const getValue = (array, key) => {
 
-            if (!Array.isArray(array))
-                return null;
+            const item = array.find(x => x.key === key);
 
-            const item = array.find(
-                (x) => x.key === key
-            );
-
-            if (!item || item.value == null)
-                return null;
+            if (!item) return null;
 
             const value = Number(item.value);
 
             return Number.isNaN(value)
                 ? null
                 : value;
+
         };
 
         return {
+
+            listed: true,
+
+            financialVerification: true,
+
+            ticker: listedCompany.ticker,
 
             // ==========================
             // Company Details
             // ==========================
 
             companyName:
-                data.companyName ?? companyName,
+                data.companyName ??
+                listedCompany.company_name,
 
             industry:
                 data.industry ?? null,
@@ -87,7 +157,8 @@ export async function enrichCompany(companyName) {
                 data.companyProfile?.website ?? null,
 
             headquarters:
-                data.companyProfile?.registeredOffice ?? null,
+                data.companyProfile?.registeredOffice ??
+                null,
 
             city:
                 data.companyProfile?.city ?? null,
@@ -96,23 +167,27 @@ export async function enrichCompany(companyName) {
                 data.companyProfile?.state ?? null,
 
             country:
-                data.companyProfile?.country ?? "India",
+                data.companyProfile?.country ??
+                "India",
 
             isin:
                 data.companyProfile?.isin ?? null,
 
             faceValue:
-                data.companyProfile?.faceValue ?? null,
+                data.companyProfile?.faceValue ??
+                null,
 
             // ==========================
-            // Exchange Details
+            // Exchange
             // ==========================
 
             exchangeCodeNse:
-                data.companyProfile?.exchangeCodeNse ?? null,
+                data.companyProfile?.exchangeCodeNse ??
+                null,
 
             exchangeCodeBse:
-                data.companyProfile?.exchangeCodeBse ?? null,
+                data.companyProfile?.exchangeCodeBse ??
+                null,
 
             currentPrice:
                 data.currentPrice?.NSE != null
@@ -120,7 +195,8 @@ export async function enrichCompany(companyName) {
                     : null,
 
             marketCap:
-                data.stockDetailsReusableData?.marketCap != null
+                data.stockDetailsReusableData
+                    ?.marketCap != null
                     ? Number(
                         data.stockDetailsReusableData.marketCap
                     )
@@ -131,46 +207,25 @@ export async function enrichCompany(companyName) {
             // ==========================
 
             revenue:
-                getValue(
-                    income,
-                    "Revenue"
-                ),
+                getValue(income, "Revenue"),
 
             totalRevenue:
-                getValue(
-                    income,
-                    "TotalRevenue"
-                ),
+                getValue(income, "TotalRevenue"),
 
             operatingIncome:
-                getValue(
-                    income,
-                    "OperatingIncome"
-                ),
+                getValue(income, "OperatingIncome"),
 
             netIncome:
-                getValue(
-                    income,
-                    "NetIncome"
-                ),
+                getValue(income, "NetIncome"),
 
             totalAssets:
-                getValue(
-                    balance,
-                    "TotalAssets"
-                ),
+                getValue(balance, "TotalAssets"),
 
             totalEquity:
-                getValue(
-                    balance,
-                    "TotalEquity"
-                ),
+                getValue(balance, "TotalEquity"),
 
             totalDebt:
-                getValue(
-                    balance,
-                    "TotalDebt"
-                ),
+                getValue(balance, "TotalDebt"),
 
             operatingCashFlow:
                 getValue(
@@ -179,14 +234,16 @@ export async function enrichCompany(companyName) {
                 ),
 
             // ==========================
-            // Analyst Data
+            // Analyst
             // ==========================
 
             analystRating:
-                data.stockDetailsReusableData?.averageRating ?? null,
+                data.stockDetailsReusableData
+                    ?.averageRating ?? null,
 
             analystCount:
-                data.recosBar?.noOfRecommendations ?? null,
+                data.recosBar
+                    ?.noOfRecommendations ?? null,
 
             // ==========================
             // News
@@ -196,7 +253,7 @@ export async function enrichCompany(companyName) {
                 data.recentNews ?? [],
 
             // ==========================
-            // Raw Financial History
+            // Financial History
             // ==========================
 
             financials,
@@ -210,7 +267,20 @@ export async function enrichCompany(companyName) {
             err.response?.data || err.message
         );
 
-        return null;
+        return {
+
+            listed: true,
+
+            financialVerification: false,
+
+            companyName,
+
+            ticker: listedCompany.ticker,
+
+            financials: null,
+
+        };
 
     }
+
 }

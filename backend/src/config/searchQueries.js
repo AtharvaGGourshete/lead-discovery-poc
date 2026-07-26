@@ -1,51 +1,26 @@
 export const SEARCH_QUERIES = [
-
     "new corporate office in India",
-
     "new headquarters in India",
-
     "office expansion in India",
-
-    "commercial office project India",
-
-    "commercial real estate development India",
-
-    "manufacturing plant India",
-
-    "factory expansion India",
-
-    "greenfield project India",
-
-    "brownfield expansion India",
-
-    "warehouse construction India",
-
-    "distribution centre India",
-
-    "logistics hub India",
-
-    "industrial park India",
-
-    "technology park India",
-
-    "data centre India",
-
-    "IT campus India",
-
-    "Research and development centre India",
-
-    "hospital construction India",
-
-    "hospital expansion India",
-
-    "hotel construction India",
-
-    "hotel project India",
-
-    "shopping mall India",
-
-    "retail expansion India",
-
-    "commercial building India"
-
+    "commercial office project in India",
+    "commercial real estate development in India",
+    "manufacturing plant in India",
+    "factory expansion in India",
+    "greenfield project in India",
+    "brownfield expansion in India",
+    "warehouse construction in India",
+    "distribution centre in India",
+    "logistics hub in India",
+    "industrial park in India",
+    "technology park in India",
+    "data centre in India",
+    "IT campus in India",
+    "Research and development centre in India",
+    "hospital construction in India",
+    "hospital expansion in India",
+    "hotel construction in India",
+    "hotel project in India",
+    "shopping mall in India",
+    "retail expansion in India",
+    "commercial building in India"
 ];
