@@ -26,7 +26,8 @@ function getFinancialValue(statement, key) {
  * Calculate Year-over-Year Revenue Growth (%)
  */
 function calculateGrowth(financials = []) {
-
+    if (!Array.isArray(financials) || financials.length === 0)
+        return null;
     const annualStatements = financials
         .filter(
             (statement) => statement.Type === "Annual"
@@ -109,9 +110,13 @@ export function applyFilters(
     company,
     financials
 ) {
+    const safeFinancials =
+        Array.isArray(financials)
+            ? financials
+            : [];
 
     const growthPercentage =
-        calculateGrowth(financials);
+        calculateGrowth(safeFinancials);
 
     const revenuePass =
         passesRevenue(company);

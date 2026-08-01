@@ -57,8 +57,7 @@ const NEGATIVE = {
 
 export function scoreArticles(articles) {
 
-    return articles
-        .map(article => {
+    return articles.map(article => {
 
             const text =
                 `${article.title} ${article.description ?? ""}`.toLowerCase();
@@ -80,7 +79,5 @@ export function scoreArticles(articles) {
                 rankingScore: score
             };
 
-        })
-        .sort((a, b) => b.rankingScore - a.rankingScore);
-
+        }).sort((a, b) => b.rankingScore - a.rankingScore);
 }

@@ -1,82 +1,58 @@
 import express from "express";
-import cors from "cors";
 import dotenv from "dotenv";
 import discoverRouter from "./routes/discover.js";
+import reportsRouter from "./routes/reports.js";
+import insightsRouter from "./routes/insights.js";
 
 dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-app.use(cors());
-app.use(express.json());
+function captureRawBody(req, _res, buf, encoding) {
+    if (buf && buf.length) {
+        req.rawBody = buf.toString(encoding || "utf8");
+    }
+}
+
+app.use((req, res, next) => {
+    console.log(`Incoming request: ${req.method} ${req.url}`);
+    res.setHeader("Access-Control-Allow-Origin", "*");
+    res.setHeader("Access-Control-Allow-Methods", "GET,POST,PUT,PATCH,DELETE,OPTIONS");
+    res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
+
+    if (req.method === "OPTIONS") {
+        return res.sendStatus(204);
+    }
+
+    next();
+});
+
+app.use(express.json({ limit: "2mb", verify: captureRawBody }));
 app.use("/discover", discoverRouter);
+app.use("/reports", reportsRouter);
+app.use("/insights", insightsRouter);
+
+app.use((err, req, res, next) => {
+    console.error("Express error handler:", err);
+    if (req.rawBody) {
+        console.error("Raw request body:", req.rawBody);
+    }
+    if (res.headersSent) {
+        return next(err);
+    }
+    res.status(500).json({ error: err.message || "Internal server error" });
+});
+
+app.get("/health", (_, res) => {
+    res.json({
+        ok: true,
+        service: "lead-discovery-poc",
+        timestamp: new Date().toISOString()
+    });
+});
 
 app.listen(PORT, () => {
     console.log(`Server running on ${PORT}`);
 });
 
-// import express from "express";
-// import cors from "cors";
-// import dotenv from "dotenv";
-// import axios from "axios";
-// import discoverRouter from "./routes/discover.js";
-// import { enrichCompany } from "./services/yahoo.service.js";
-// import { applyFilters } from "./utils/filterEngine.js";
-
-// dotenv.config();
-
-// const app = express();
-// const PORT = process.env.PORT || 5000;
-
-// app.use(cors());
-// app.use(express.json());
-
-// app.use("/discover", discoverRouter);
-
-// // TEMP TEST
-// // async function testYahoo() {
-    
-
-// //     const finance = await enrichCompany("Infosys");
-
-// //     console.log(finance);
-// //     console.log(applyFilters(finance));
-
-// // }
-
-// // testYahoo();
-
-// async function testIndianAPI() {
-//     try {
-//         const response = await axios.get(
-//             "https://stock.indianapi.in/stock",
-//             {
-//                 params: {
-//                     name: "Infosys"
-//                 },
-//                 headers: {
-//                     "x-api-key": process.env.INDIAN_API_KEY
-//                 }
-//             }
-//         );
-
-//         //console.log(response.data);
-//         console.log(
-//     JSON.stringify(
-//         response.data.financials[0].stockFinancialMap,
-//         null,
-//         2
-//     )
-// );
-
-//     } catch (err) {
-//         console.log(err.response?.data || err.message);
-//     }
-// }
-
-// testIndianAPI();
-
-// app.listen(PORT, () => {
-//     console.log(`Server running on ${PORT}`);
-// });
