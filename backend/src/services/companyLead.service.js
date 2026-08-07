@@ -49,14 +49,45 @@ export function scoreArchitectureLead(company, finance, reportAnalysis) {
       Math.min(reportAnalysis.signalCount * 3, 10)
   );
 
-  return {
-    qualified: filters.qualified && reportAnalysis.hasExpansionPlans,
+  // return {
+  //   qualified: filters.qualified && reportAnalysis.hasExpansionPlans,
+  //   leadScore,
+  //   priority: determinePriority(leadScore),
+  //   filters,
+  //   reportScore,
+  //   matchedSignals: reportScore.matched,
+  //   failedReasons: filters.failedReasons,
+  //   growthPercentage: filters.growthPercentage
+  // };
+
+  const projectQualified =
+    reportScore.score >= 70;
+
+return {
+
+    qualified:
+        filters.qualified &&
+        projectQualified,
+
     leadScore,
-    priority: determinePriority(leadScore),
+
+    priority:
+        determinePriority(
+            leadScore
+        ),
+
     filters,
+
     reportScore,
-    matchedSignals: reportScore.matched,
-    failedReasons: filters.failedReasons,
-    growthPercentage: filters.growthPercentage
-  };
+
+    matchedSignals:
+        reportScore.matched,
+
+    failedReasons:
+        filters.failedReasons,
+
+    growthPercentage:
+        filters.growthPercentage
+
+};
 }

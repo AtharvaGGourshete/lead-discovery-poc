@@ -232,12 +232,12 @@ export function App() {
       </div>
 
       <main className="dashboard">
-        <section className="summary-grid">
+        {/* <section className="summary-grid">
           <MetricCard label="Total Discovered" value={DEFAULT_STATS.discovered} />
           <MetricCard label="Qualified" value={DEFAULT_STATS.qualified} />
           <MetricCard label="Tier A" value={DEFAULT_STATS.tierA} />
           <MetricCard label="Last Refresh" value={DEFAULT_STATS.lastRefresh} />
-        </section>
+        </section> */}
 
         <section className="content-grid">
           <SectionCard

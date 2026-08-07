@@ -187,11 +187,15 @@ export function applyFilters(
 
     return {
 
+        // qualified:
+        //     revenuePass &&
+        //     growthPass &&
+        //     industryPass &&
+        //     countryPass,
+
         qualified:
-            revenuePass &&
-            growthPass &&
-            industryPass &&
-            countryPass,
+    revenuePass &&
+    countryPass,
 
         filterScore,
 

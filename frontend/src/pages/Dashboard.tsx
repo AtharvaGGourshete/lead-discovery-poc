@@ -100,12 +100,12 @@ export function Dashboard() {
         </form>
       </section>
 
-      <div className="dashboard-grid">
+      {/* <div className="dashboard-grid">
         <MetricCard label="Total Discovered" value={stats.discovered} />
         <MetricCard label="Qualified" value={stats.qualified} />
         <MetricCard label="Tier A" value={stats.tierA} />
         <MetricCard label="Last Refresh" value={stats.lastRefresh} />
-      </div>
+      </div> */}
 
       <div className="dashboard-columns">
         <section className="section-card">
