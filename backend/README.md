@@ -39,3 +39,4 @@ This now uses the same company-analysis pipeline, so older frontend code can kee
 - Annual report discovery uses Python `nse` (`NSE.annual_reports` and `download_document`) instead of browser scraping.
 - PDF text extraction uses `pdf-parse`.
 - If a report cannot be downloaded or parsed, the API still returns company discovery and financial data.
+// Random Update
