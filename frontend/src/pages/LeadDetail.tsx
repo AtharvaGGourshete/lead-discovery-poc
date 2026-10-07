@@ -42,7 +42,7 @@ export function LeadDetail() {
             <h3>Financial data</h3>
             <dl>
               <dt>Revenue</dt>
-              <dd>₹{lead.revenue.toLocaleString("en-IN")} B</dd>
+              <dd>Rs. {lead.revenue.toLocaleString("en-IN")} B</dd>
               <dt>Growth</dt>
               <dd>{lead.growth.toFixed(1)}%</dd>
               <dt>Symbol</dt>
@@ -56,13 +56,21 @@ export function LeadDetail() {
 
           <div className="detail-card">
             <h3>Qualification analysis</h3>
-            <p>Tier: {qualification?.tier ?? "—"}</p>
-            <p>Score: {qualification?.score ?? "—"}</p>
+            <div className="metric-grid">
+              <div className="metric">
+                <span className="metric__label">Tier</span>
+                <strong className="metric__value">{qualification?.tier ?? "N/A"}</strong>
+              </div>
+              <div className="metric">
+                <span className="metric__label">Score</span>
+                <strong className="metric__value">{qualification?.score ?? "N/A"}</strong>
+              </div>
+            </div>
             <div className="filter-checklist">
               {qualification
                 ? Object.entries(qualification.filterResults).map(([key, passed]) => (
                     <div key={key} className={passed ? "filter-pass" : "filter-fail"}>
-                      <span>{passed ? "✓" : "✗"}</span>
+                      <span>{passed ? "Pass" : "Fail"}</span>
                       <span>{key}</span>
                     </div>
                   ))
@@ -71,11 +79,15 @@ export function LeadDetail() {
           </div>
         </div>
 
-        <section className="section-card">
-          <h3>News & signals</h3>
+        <section className="section-card" style={{ marginTop: 18 }}>
+          <div className="section-card__header">
+            <span className="section-card__eyebrow">Signals</span>
+            <h2>News and market context</h2>
+            <p>Recent headlines and signal classifications attached to this lead.</p>
+          </div>
           <div className="news-grid">
             {news.length === 0 ? (
-              <p>No news signals found.</p>
+              <p className="empty-state">No news signals found.</p>
             ) : (
               news.map((item) => (
                 <article key={item.id} className="news-card">

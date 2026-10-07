@@ -1,6 +1,6 @@
 export const FILTERS = {
 
-    minimumRevenueCrores: 1250,
+    minimumRevenueCrores: 3000,
 
     minimumRevenueGrowth: 10,
 

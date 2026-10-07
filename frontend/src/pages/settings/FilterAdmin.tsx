@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { fetchFilters, updateFilters } from "../../services/filterAPI";
+import { updateFilters } from "../../services/filterAPI";
 import { useFilters } from "../../hooks/useFilters";
 import { useNotification } from "../../hooks/useNotification";
 

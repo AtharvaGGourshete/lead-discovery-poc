@@ -1,15 +1,8 @@
-import { useState } from "react";
+import { useState, type FormEvent } from "react";
 import { MetricCard } from "../components/MetricCard";
 import { FunnelChart } from "../components/FunnelChart";
 
-const stats = {
-  discovered: 1247,
-  qualified: 342,
-  tierA: 87,
-  tierB: 156,
-  tierC: 99,
-  lastRefresh: "2h ago"
-};
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? "http://127.0.0.1:5000";
 
 const funnel = [
   { label: "Discovered", value: 1247 },
@@ -32,14 +25,14 @@ export function Dashboard() {
   const [searchError, setSearchError] = useState("");
   const [searchResult, setSearchResult] = useState<any>(null);
 
-  async function handleSearch(event: React.FormEvent<HTMLFormElement>) {
+  async function handleSearch(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setSearchError("");
     setIsSearching(true);
     setSearchResult(null);
 
     try {
-      const response = await fetch(`/api/insights/company`, {
+      const response = await fetch(`${API_BASE_URL}/insights/company`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ company })
@@ -59,12 +52,18 @@ export function Dashboard() {
     }
   }
 
+  const companyName = searchResult?.companyDiscovery?.companyName || "Waiting for a company search";
+  const reportCount = searchResult?.reportEngine?.candidates?.length ?? 0;
+  const selectedReport = searchResult?.reportEngine?.selectedReport?.title || "No report selected";
+  const evidenceCount = searchResult?.reportEngine?.analysis?.evidence?.length ?? 0;
+
   return (
     <div className="page-grid">
       <section className="section-card">
         <div className="section-card__header">
-          <span className="section-card__eyebrow">Company search</span>
+          <span className="section-card__eyebrow">Control Center</span>
           <h2>Search NSE-listed companies for annual report insights</h2>
+          <p>Use the same backend pipeline that powers the main analysis screen, but with a lighter operational dashboard feel.</p>
         </div>
 
         <form className="search-panel" onSubmit={handleSearch}>
@@ -80,32 +79,42 @@ export function Dashboard() {
               {isSearching ? "Searching..." : "Search"}
             </button>
           </div>
+          <p className="search-panel__hint">A quick search will return company discovery, report selection, and extracted signals.</p>
           {searchError ? <p className="error-banner">{searchError}</p> : null}
+
           {searchResult ? (
-            <div className="metric-grid" style={{ marginTop: 16 }}>
+            <div className="metric-grid" style={{ marginTop: 8 }}>
               <div className="metric">
                 <span className="metric__label">Company</span>
-                <strong className="metric__value">{searchResult.companyDiscovery?.companyName || "Unknown"}</strong>
+                <strong className="metric__value">{companyName}</strong>
+                <span className="metric__hint">Resolved from the lookup layer</span>
               </div>
               <div className="metric">
                 <span className="metric__label">Annual report results</span>
-                <strong className="metric__value">{searchResult.reportEngine?.candidates?.length ?? 0}</strong>
+                <strong className="metric__value">{reportCount}</strong>
+                <span className="metric__hint">Candidates returned by the report engine</span>
               </div>
               <div className="metric">
-                <span className="metric__label">Report selected</span>
-                <strong className="metric__value">{searchResult.reportEngine?.selectedReport?.title || "None"}</strong>
+                <span className="metric__label">Selected report</span>
+                <strong className="metric__value">{selectedReport}</strong>
+                <span className="metric__hint">Document chosen for analysis</span>
+              </div>
+              <div className="metric">
+                <span className="metric__label">Signals extracted</span>
+                <strong className="metric__value">{evidenceCount}</strong>
+                <span className="metric__hint">Expansion evidence found in the report</span>
               </div>
             </div>
           ) : null}
         </form>
       </section>
 
-      {/* <div className="dashboard-grid">
-        <MetricCard label="Total Discovered" value={stats.discovered} />
-        <MetricCard label="Qualified" value={stats.qualified} />
-        <MetricCard label="Tier A" value={stats.tierA} />
-        <MetricCard label="Last Refresh" value={stats.lastRefresh} />
-      </div> */}
+      <section className="content-grid">
+        <MetricCard label="Discovered" value="1,247" hint="Companies sourced across feeds" />
+        <MetricCard label="Qualified" value="342" hint="Passed the viability filter" />
+        <MetricCard label="Tier A" value="87" hint="Highest-priority opportunities" />
+        <MetricCard label="Last refresh" value="2h ago" hint="Most recent pipeline update" />
+      </section>
 
       <div className="dashboard-columns">
         <section className="section-card">

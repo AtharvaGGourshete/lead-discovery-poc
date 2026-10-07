@@ -19,9 +19,33 @@ export function RefreshStatus() {
         <div className="section-card__header">
           <span className="section-card__eyebrow">Refresh Status</span>
           <h2>Sync health</h2>
+          <p>Track the cadence of the lead refresh pipeline and the freshness of its upstream sources.</p>
         </div>
 
-        <div className="refresh-grid">
+        <div className="metric-grid">
+          <div className="metric">
+            <span className="metric__label">Total leads</span>
+            <strong className="metric__value">{status.stats.total}</strong>
+            <span className="metric__hint">Current lead pool in the system</span>
+          </div>
+          <div className="metric">
+            <span className="metric__label">Qualified</span>
+            <strong className="metric__value">{status.stats.qualified}</strong>
+            <span className="metric__hint">Passed the qualification filters</span>
+          </div>
+          <div className="metric">
+            <span className="metric__label">Unqualified</span>
+            <strong className="metric__value">{status.stats.unqualified}</strong>
+            <span className="metric__hint">Tracked but not yet promoted</span>
+          </div>
+          <div className="metric">
+            <span className="metric__label">Next refresh</span>
+            <strong className="metric__value">{status.nextRefresh}</strong>
+            <span className="metric__hint">{status.schedule}</span>
+          </div>
+        </div>
+
+        <div className="refresh-grid" style={{ marginTop: 18 }}>
           <div className="refresh-card">
             <p>Schedule</p>
             <strong>{status.schedule}</strong>
@@ -31,14 +55,17 @@ export function RefreshStatus() {
 
           <div className="refresh-card">
             <h3>Source Health</h3>
-            <div>Yahoo Finance ✓ {status.health.yahoo}</div>
-            <div>GNews API ✓ {status.health.gnews}</div>
-            <div>NSE/BSE ✓ {status.health.market}</div>
+            <div>Yahoo Finance OK - {status.health.yahoo}</div>
+            <div>GNews API OK - {status.health.gnews}</div>
+            <div>NSE/BSE Cached - {status.health.market}</div>
           </div>
         </div>
 
-        <div className="section-card">
-          <h3>History</h3>
+        <div className="section-card" style={{ marginTop: 18 }}>
+          <div className="section-card__header">
+            <span className="section-card__eyebrow">History</span>
+            <h2>Recent refresh runs</h2>
+          </div>
           <div className="history-grid">
             {status.history.map((entry) => (
               <div key={entry.id} className={`history-card ${entry.status === "success" ? "history-card--success" : "history-card--failed"}`}>

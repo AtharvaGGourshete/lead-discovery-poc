@@ -9,7 +9,7 @@ const sectors = ["Tech", "Manufacturing", "Healthcare", "Retail", "Logistics"];
 const sources = ["Yahoo", "GNews", "Internal"];
 
 function formatCurrency(value: number) {
-  return `₹${value.toLocaleString("en-IN")} Cr`;
+  return `Rs. ${value.toLocaleString("en-IN")} Cr`;
 }
 
 export function LeadList() {
@@ -39,6 +39,7 @@ export function LeadList() {
         <div className="section-card__header">
           <span className="section-card__eyebrow">Lead List</span>
           <h2>Active opportunities</h2>
+          <p>Filter and inspect the live lead pool with a stronger table layout and a clearer surface hierarchy.</p>
         </div>
 
         <div className="filter-row">
